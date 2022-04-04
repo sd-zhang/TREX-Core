@@ -3,8 +3,21 @@ import random
 from datetime import datetime
 import pytz
 from dateutil.parser import parse as timeparse
+import socket
+from contextlib import closing
 
 secure_random = random.SystemRandom()
+
+
+# https://stackoverflow.com/questions/43270868/verify-if-a-local-port-is-available-in-python
+
+def port_is_open(host, port):
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex((host, port)) == 0:
+            return True
+        else:
+            return False
+
 
 def timestamp_to_local(epoch_ts, timezone):
     """Converts UNIX timestamp to local datetime object"""
@@ -52,11 +65,12 @@ def process_profile(row, gen_scale=1, load_scale=1):
     if row is not None:
         # if the data has been pre-processed
         if 'generation' in row and 'consumption' in row:
-            return row['generation'], row['consumption']
-
-        # else, calculate generation and consumption on the fly
-        consumption = int(round(load_scale * (row['grid'] + row['solar+']), 0))
-        generation = int(round(gen_scale * row['solar+'], 0))
+            consumption = int(round(load_scale * row['consumption'], 0))
+            generation = int(round(gen_scale * row['generation'], 0))
+        else:
+            # else, calculate generation and consumption on the fly
+            consumption = int(round(load_scale * (row['grid'] + row['solar+']), 0))
+            generation = int(round(gen_scale * row['solar+'], 0))
         return generation, consumption
     return 0, 0
 

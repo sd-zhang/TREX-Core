@@ -1,7 +1,8 @@
+import socket
 import commentjson
 import os
 import random
-from _utils import db_utils
+from _utils import utils, db_utils
 from _utils import jkson as json
 import sqlalchemy
 from sqlalchemy import create_engine, MetaData, Column
@@ -12,7 +13,7 @@ from packaging import version
 class Runner:
     def __init__(self, config, resume=False, **kwargs):
         self.configs = self.__get_config(config, resume, **kwargs)
-        self.__config_version_valid = bool(version.parse(self.configs['version']) >= version.parse("3.6.0"))
+        self.__config_version_valid = bool(version.parse(self.configs['version']) >= version.parse("3.6.2"))
 
         # if not resume:
         #     r = tenacity.Retrying(
@@ -166,11 +167,25 @@ class Runner:
         if not self.__config_version_valid:
             return []
 
-        seq = kwargs['seq'] if 'seq' in kwargs else 0
-
         config = json.loads(json.dumps(self.configs))
-        default_port = int(self.configs['server']['port']) if self.configs['server']['port'] else 3000
-        config['server']['port'] = default_port + seq
+
+        if 'server' not in self.configs or 'host' not in self.configs['server'] or not self.configs['server']['host']:
+            config['server']['host'] = socket.gethostbyname(socket.getfqdn())
+
+        if 'server' not in self.configs or 'port' not in self.configs['server'] or not self.configs['server']['port']:
+            config['server']['port'] = 42069
+
+        seq = kwargs['seq'] if 'seq' in kwargs else 0
+        config['server']['port'] += seq
+
+        # iterate ports until an available one is found, starting from the default or the preferred port
+        while True:
+            if utils.port_is_open(config['server']['host'], config['server']['port']):
+                config['server']['port'] += 1
+            else:
+                break
+
+        # config['server']['port'] = default_port + seq
         config['study']['type'] = simulation_type
 
         # if resume is False, then drop all tables relevant to the study type
@@ -257,7 +272,7 @@ class Runner:
         finally:
             subprocess.run(['python', args[0], *args[1]])
 
-    def run(self, simulations):
+    def run(self, simulations, **kwargs):
         if not self.__config_version_valid:
             print('CONFIG NOT COMPATIBLE')
             return
@@ -268,7 +283,7 @@ class Runner:
         for sim_param in simulations:
             config = self.modify_config(**sim_param, seq=seq)
             self.__create_sim_metadata(config)
-            launch_list.extend(self.make_launch_list(config))
+            launch_list.extend(self.make_launch_list(config, **kwargs))
             seq += 1
 
         pool_size = len(launch_list)
