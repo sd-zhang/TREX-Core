@@ -352,8 +352,8 @@ class Runner:
                     simulations_list.append({'simulation_type': sim_type,
                                              'hyperparameters': permutation})
 
-            for simulation in simulations:
-                simulations_list.append({'simulation_type': simulation})
+        for simulation in simulations:
+            simulations_list.append({'simulation_type': simulation})
 
         for sim_param in simulations_list:
             config = self.modify_config(**sim_param, seq=seq)
