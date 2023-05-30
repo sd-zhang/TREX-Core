@@ -378,8 +378,8 @@ class Runner:
                 # autochunker to parallelize hyperparam search based on number of cpu cores available
                 cpu_cores = multiprocessing.cpu_count()
                 subprocesses = len(self.configs["participants"]) + 2
-                # parallel_sims = cpu_cores // subprocesses
-                parallel_sims = 1
+                parallel_sims = cpu_cores // subprocesses
+                # parallel_sims = 1
                 hps_permutations = [self.hyperparameters_permutations[i::parallel_sims] for i in range(parallel_sims)]
                 # [L[i::n] for i in range(n)]
 

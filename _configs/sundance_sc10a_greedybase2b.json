@@ -1,7 +1,7 @@
 {
   "version": "3.7.0",
   "study": {
-    "name": "sundance_sc10a_greedybase_bt1-1",
+    "name": "sundance_sc10a_greedybase_bt2",
       "description": "",
       "start_datetime": "2015-05-31 22:0:0",
       "start_datetime_sequence": "sequential",
@@ -144,14 +144,14 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 13500,
+          "power": 5000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
-//        "storage": {
-//          "type": "Bess",
-//          "capacity": 13500,
-//          "power": 5000,
-//          "efficiency": 1,
-//          "monthly_sdr": 0
-//        }
       },
       "R11": {
         "type": "Residential",
@@ -168,6 +168,13 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 13500,
+          "power": 5000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
       "R12": {
@@ -175,7 +182,7 @@
         "trader": {
           "track_metrics": true,
           "type": "basic_trader",
-          "bid_price": 0.14,
+          "bid_price": 0.141,
           "ask_price": 0.07,
           "use_synthetic_profile": "SunDance_1007"
         },
@@ -184,6 +191,13 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 13500,
+          "power": 5000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
       "R13": {

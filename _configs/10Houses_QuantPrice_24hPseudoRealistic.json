@@ -31,7 +31,7 @@
       }
     },
     "participants": {
-      "Node1": {
+      "R5": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -69,17 +69,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge13830"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node2": {
+      "R6": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -117,17 +117,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge13836"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node3": {
+      "R7": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -165,17 +165,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge13974"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node4": {
+      "R8": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -213,17 +213,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge14018"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node5": {
+      "R9": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -261,17 +261,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge14795"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node6": {
+      "R10": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -309,17 +309,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge15601"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node7": {
+      "R11": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -357,17 +357,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge15623"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node8": {
+      "R12": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -405,17 +405,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge16133"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node9": {
+      "R13": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -453,17 +453,17 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge16608"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       },
-      "Node10": {
+      "R14": {
         "type": "Residential",
         "trader": {
           "track_metrics": true,
@@ -501,14 +501,14 @@
           "limit_actions": true,
 
           "reward_function": "net_profit",
-          "use_synthetic_profile": "8step_offsetsine_load_solar"
+          "use_synthetic_profile": "egauge16616"
 
         },
         "load": {
-          "scale": 15
+          "scale": 1
         },
         "generation": {
-          "scale": 15
+          "scale": 1
         }
       }
     }

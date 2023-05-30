@@ -73,6 +73,7 @@ class Participant:
             'generation_scale': kwargs['generation_scale'] if 'generation_scale' in kwargs else 1,
             'load_scale': kwargs['load_scale'] if 'load_scale' in kwargs else 1
         }
+        trader_fns['profile_params'] = self.__profile_params
         synthetic_profile = trader_params.pop('use_synthetic_profile', None)
         if synthetic_profile:
             self.__profile_params['synthetic_profile'] = synthetic_profile

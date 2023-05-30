@@ -1,0 +1,65 @@
+{
+  "version": "3.7.0",
+  "study": {
+    "name": "test",
+      "description": "",
+      "start_datetime": "2015-05-31 22:0:0",
+      "start_datetime_sequence": "sequential",
+      "timezone": "America/Vancouver",
+      "days": 1,
+      "time_step_size": 3600,
+      "generations": 1,
+      "profiles_db_location": "postgresql://postgres:postgres@localhost/SunDance"
+//      "sim_root": "/home/trex/sim/"
+    },
+  "server": {
+      "host": "",
+      "port": 5205
+    },
+  "training": {
+    "hyperparameters": {
+      "entropy_reg": {"start": 0.1, "stop": 0.01, "num": 1}
+    },
+    "curriculum": {
+      "0": {
+        "warmup_actor": true
+      },
+      "2": {
+        "warmup_actor": false,
+        "anneal": {
+          "entropy_reg": [0.95,"multiply", 0.05]
+          }
+        }
+      }
+    },
+
+    "market": {
+      "id": "",
+      "type": "MicroTE3B",
+      "close_steps": 2,
+      "grid": {
+        "price": 0.069,
+        "fee_ratio": 1.1
+      }
+    },
+    "participants": {
+      "R5": {
+        "type": "Residential",
+        "trader": {
+          "track_metrics": true,
+          "type": "basic_trader",
+          "bid_price": 0.14,
+          "ask_price": 0.07,
+          "reward_function": "net_profit",
+          "use_synthetic_profile": "SunDance_1001230"
+        },
+        "load": {
+          "scale": 1
+        },
+        "generation": {
+          "scale": 1
+        }
+      }
+    }
+  }
+  

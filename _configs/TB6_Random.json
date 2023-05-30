@@ -1,114 +1,116 @@
 {
-    "version": "3.6.1",
-    "study": {
-      "name": "RandomBaseline_1gen_1load",
-      "description": "",
-      "start_datetime": "2018-07-01 0:0:0",
-      "start_datetime_sequence": "sequential",
-      "timezone": "America/Vancouver",
-      "days": 1,
-      "generations": 500,
-      "sim_root": ""
-    },
-    "hyperparameters":{
-      // "alpha_critic": {"start": 0.1, "stop": 0.2, "num": 3},
-      // "alpha_actor": 0.1 //hyperparameters to be kept constant over all participating agents
-    },
+  "version": "3.7.0",
+  "study": {
+    "name": "RandomBaseline_1gen_1load",
+    "description": "",
+    "start_datetime": "2018-07-01 0:0:0",
+    "start_datetime_sequence": "sequential",
+    "timezone": "America/Vancouver",
+    "days": 1,
+    "generations": 500,
+    "sim_root": ""
+  },
+  "training": {
+//    "hyperparameters":{
+//      "alpha_critic": {"start": 0.1, "stop": 0.2, "num": 3},
+//      "alpha_actor": 0.1 //hyperparameters to be kept constant over all participating agents
+//    },
     "curriculum": {
      "3": { "anneal": {"entropy_reg": [0.85,"multiply", 0.2],
                         "warmup_actor":  [false, "set"]}}
-    },
-    "server": {
-      "host": "",
-      "port": "8001"
-    },
-    "market": {
-      "id": "",
-      "type": "MicroTE3B",
-      "close_steps": 2,
-      "grid": {
-        "price": 0.069,
-        "fee_ratio": 1.1
+    }
+  },
+  "server": {
+    "host": "",
+    "port": 8001
+  },
+  "market": {
+    "id": "",
+    "type": "MicroTE3B",
+    "close_steps": 2,
+    "grid": {
+      "price": 0.069,
+      "fee_ratio": 1.1
+    }
+  },
+  "participants": {
+    "egauge19821": {
+      "type": "Residential",
+      "trader": {
+        "track_metrics": true,
+        "type": "random_baseline",
+        "bid_price": 0.14,
+        "ask_price": 0.07,
+
+        "learning": true,
+
+        "reward_function": "net_profit",
+        "use_synthetic_profile": "test_profile_1kw_constant_gl"
+      },
+      "load": {
+        "scale": 0
+      },
+      "generation": {
+        "scale": 1
       }
     },
-    "participants": {
-      "egauge19821": {
-        "type": "Residential",
-        "trader": {
-          "track_metrics": true,
-          "type": "random_baseline",
-          "bid_price": 0.14,
-          "ask_price": 0.07,
+    "egauge16616": {
+      "type": "Residential",
+      "trader": {
+        "track_metrics": true,
+        "type": "random_baseline",
+        "bid_price": 0.14,
+        "ask_price": 0.07,
+        "learning": true,
 
-          "learning": true,
-
-          "reward_function": "net_profit",
-          "use_synthetic_profile": "test_profile_1kw_constant_gl"
-        },
-        "load": {
-          "scale": 0
-        },
-        "generation": {
-          "scale": 1
-        }
+        "reward_function": "net_profit",
+        "use_synthetic_profile": "test_profile_1kw_constant_gl"
       },
-      "egauge16616": {
-        "type": "Residential",
-        "trader": {
-          "track_metrics": true,
-          "type": "random_baseline",
-          "bid_price": 0.14,
-          "ask_price": 0.07,
-          "learning": true,
-
-          "reward_function": "net_profit",
-          "use_synthetic_profile": "test_profile_1kw_constant_gl"
-        },
-        "load": {
-          "scale": 0
-        },
-        "generation": {
-          "scale": 1
-        }
+      "load": {
+        "scale": 0
       },
-      "egauge17073": {
-        "type": "Residential",
-        "trader": {
-          "track_metrics": true,
-          "type": "random_baseline",
-          "bid_price": 0.14,
-          "ask_price": 0.07,
-           "learning": true,
+      "generation": {
+        "scale": 1
+      }
+    },
+    "egauge17073": {
+      "type": "Residential",
+      "trader": {
+        "track_metrics": true,
+        "type": "random_baseline",
+        "bid_price": 0.14,
+        "ask_price": 0.07,
+         "learning": true,
 
-          "reward_function": "net_profit",
-          "use_synthetic_profile": "test_profile_1kw_constant_gl"
-        },
-        "load": {
-          "scale": 1
-        },
-        "generation": {
-          "scale": 0
-        }
+        "reward_function": "net_profit",
+        "use_synthetic_profile": "test_profile_1kw_constant_gl"
       },
-      "egauge13974": {
-        "type": "Residential",
-        "trader": {
-          "track_metrics": true,
-          "type": "random_baseline",
-          "bid_price": 0.14,
-          "ask_price": 0.07,
-          "learning": true,
+      "load": {
+        "scale": 1
+      },
+      "generation": {
+        "scale": 0
+      }
+    },
+    "egauge13974": {
+      "type": "Residential",
+      "trader": {
+        "track_metrics": true,
+        "type": "random_baseline",
+        "bid_price": 0.14,
+        "ask_price": 0.07,
+        "learning": true,
 
-          "reward_function": "net_profit",
-          "use_synthetic_profile": "test_profile_1kw_constant_gl"
-        },
-        "load": {
-          "scale": 1
-        },
-        "generation": {
-          "scale": 0
-        }
+        "reward_function": "net_profit",
+        "use_synthetic_profile": "test_profile_1kw_constant_gl"
+      },
+      "load": {
+        "scale": 1
+      },
+      "generation": {
+        "scale": 0
       }
     }
   }
+}
   

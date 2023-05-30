@@ -1,7 +1,7 @@
 {
   "version": "3.7.0",
   "study": {
-    "name": "sundance_sc10a_greedybase_bt1-1",
+    "name": "sundance_sc10a_greedybase_10bess-3",
       "description": "",
       "start_datetime": "2015-05-31 22:0:0",
       "start_datetime_sequence": "sequential",
@@ -40,16 +40,29 @@
       "grid": {
         "price": 0.069,
         "fee_ratio": 1.1
-      }
+      },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
+        }
     },
     "participants": {
-      "R5": {
+      "R5": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_1001230"
         },
@@ -58,15 +71,28 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R6": {
+      "R6": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_1001974"
         },
@@ -75,15 +101,28 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R7": {
+      "R7": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_100500"
         },
@@ -92,15 +131,28 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R8": {
+      "R8": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_10068"
         },
@@ -109,15 +161,28 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R9": {
+      "R9": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_10011"
         },
@@ -126,40 +191,58 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R10": {
+      "R10": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_10063"
-
         },
         "load": {
           "scale": 1
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
-//        "storage": {
-//          "type": "Bess",
-//          "capacity": 13500,
-//          "power": 5000,
-//          "efficiency": 1,
-//          "monthly_sdr": 0
-//        }
       },
-      "R11": {
+      "R11": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_100124"
         },
@@ -168,15 +251,29 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R12": {
+      "R12": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "battery_schedule_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
+          "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_1007"
         },
         "load": {
@@ -184,15 +281,28 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R13": {
+      "R13": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_1003842"
         },
@@ -201,15 +311,28 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
       },
-      "R14": {
+      "R14": { //serves as baseline for evaluation for battery tests
         "type": "Residential",
         "trader": {
           "track_metrics": true,
-          "type": "basic_trader",
+          "type": "baseline_agent",
           "bid_price": 0.14,
           "ask_price": 0.07,
+          "P_max": 3000,
+          "actions": [
+            "storage"
+          ],
+          "learning": true,
+          "limit_actions": true,
           "reward_function": "net_profit",
           "use_synthetic_profile": "SunDance_1002705"
 
@@ -219,7 +342,21 @@
         },
         "generation": {
           "scale": 1
+        },
+        "storage": {
+          "type": "Bess",
+          "capacity": 6000,
+          "power": 3000,
+          "efficiency": 1,
+          "monthly_sdr": 0
         }
+//        "storage": {
+//          "type": "Bess",
+//          "capacity": 6000,
+//          "power": 3000,
+//          "efficiency": 1,
+//          "monthly_sdr": 0
+//        }
       }
     }
   }

@@ -45,7 +45,7 @@ class Trader:
         next_settle = self.__participant['timing']['next_settle']
         timezone = self.__participant['timing']['timezone']
         next_settle_end = utils.timestamp_to_local(next_settle[1], timezone)
-        charge_hours_allowed = (8, 9, 10, 11, 12, 13, 14, 15, 16)
+        charge_hours_allowed = (7, 8, 9, 10, 11, 12, 13, 14, 15)
 
         generation, load = await self.__participant['read_profile'](next_settle)
         residual_load = load - generation
