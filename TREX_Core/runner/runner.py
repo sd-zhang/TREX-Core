@@ -345,33 +345,47 @@ class Runner:
         if config is None:
             config = self.config
 
-        if not config['market']['id']:
-            config['market']['id'] = config['market']['type']
-
-        exclude = {'version', 'study', 'server', 'database', 'records', 'participants'}
-        if isinstance(skip, str):
-            skip = (skip,)
-        exclude.update(skip)
-        # print(config)
+        #TODO: add the for loop for the parallel thing
+        parallel = config['study'].get('parallel', 1)
         launch_list = []
-        dynamic = [k for k in config if k not in exclude]
-        # print(dynamic)
-        for module_n in dynamic:
-            # print(module_n, exclude)
-            if module_n in exclude:
-                continue
-            try:
-                module = import_module('TREX_Core.runner.make.' + module_n)
-                launch_list.append(module.cli(config))
-            except ImportError:
-                # print(module_n, 'not found')
-                module = import_module('runner.make.' + module_n)
-                launch_list.append(module.cli(config))
-        if 'sim_controller' not in exclude:
-            launch_list.append(sim_controller.cli(config))
-        for p_id in config['participants']:
-            if p_id not in exclude:
-                launch_list.append(participant.cli(config, p_id))
+
+        for idx in range(parallel):
+            if not config['market']['id']:
+                config['market']['id'] = config['market']['type']
+
+            if parallel > 1:
+                config['market']['id'] = f'{config['market']['id']}/{idx}'
+
+            exclude = {'version', 'study', 'server', 'database', 'records', 'participants'}
+
+            if isinstance(skip, str):
+                skip = (skip,)
+            exclude.update(skip)
+            # print(config)
+
+            dynamic = [k for k in config if k not in exclude]
+            # print(dynamic)
+            for module_n in dynamic:
+                # print(module_n, exclude)
+                if module_n in exclude:
+                    continue
+
+                p_copies = config['module_n'].get('parallel_copies')
+                if p_copies and p_copies > idx+1:
+                    continue
+
+                try:
+                    module = import_module('TREX_Core.runner.make.' + module_n)
+                    launch_list.append(module.cli(config))
+                except ImportError:
+                    # print(module_n, 'not found')
+                    module = import_module('runner.make.' + module_n)
+                    launch_list.append(module.cli(config))
+            if 'sim_controller' not in exclude:
+                launch_list.append(sim_controller.cli(config))
+            for p_id in config['participants']:
+                if p_id not in exclude:
+                    launch_list.append(participant.cli(config, p_id))
 
         # print(launch_list)
         return launch_list
