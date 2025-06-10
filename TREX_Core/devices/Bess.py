@@ -198,7 +198,7 @@ class Storage:
         return self.__info
 
     def reset(self, soc_pct):
-        remaining_energy = int(self.__info['capacity'] * max(0, min(100, soc_pct/100)))
+        remaining_energy = int(self.__info['capacity'] * max(0, min(1, soc_pct/100)))
         self.__info['remaining_energy'] = remaining_energy
         self.__info['state_of_charge'] = soc_pct
         self.__schedule = {}
