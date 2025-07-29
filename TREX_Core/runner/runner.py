@@ -52,7 +52,7 @@ def get_config(config_name: str, original=False, **kwargs):
         config['study']['profiles_db_location'] = profiles_db_str
 
     if credentials and ('output_db_location' not in config['study']):
-        output_db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{db_host}:{db_port}/{profiles_db}'
+        output_db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{db_host}:{db_port}'
         config['study']['output_db_location'] = output_db_str
     # engine = create_engine(db_string)
 
@@ -370,7 +370,7 @@ class Runner:
                 if module_n in exclude:
                     continue
 
-                p_copies = config['module_n'].get('parallel_copies')
+                p_copies = config[module_n].get('parallel_copies')
                 if p_copies and p_copies > idx+1:
                     continue
 
