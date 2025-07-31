@@ -31,9 +31,19 @@ class TraderContext:
     market_info:       Dict
     read_profile:      Callable
     get_profile_stats: Callable
-    meter:             Dict
+    meter:             Callable[[], Dict]
     storage:           Optional[StorageContext] = None
 
+@dataclass(frozen=True)
+class RecordsContext:
+    participant_id:    str
+    timing:            Dict
+    next_actions:      Optional[Callable[[], Dict]]
+    meter:             Optional[Callable[[], Dict]]
+    read_profile:      Optional[Callable]
+    # get_profile_stats: Callable
+    storage:           Optional[StorageContext] = None
+    trader:            Optional[TraderContext] = None
 
 class Participant(ABC):
     """
@@ -60,42 +70,22 @@ class Participant(ABC):
         self.__market_info = {}
         self.__meter = {}
         self.__timing = {}
+        self.__next_actions = {}
 
         # Initialize trader variables and functions
         trader_params = kwargs.get('trader')
-        # trader_fns = {
-        #     'client': self.__client,
-        #     'id': self.participant_id,
-        #     'market_id': self.market_id,
-        #     'timing': self.__timing,
-        #     'ledger': self.__ledger,
-        #     'extra_transactions': self.__extra_transactions,
-        #     'market_info': self.__market_info,
-        #     'read_profile': self.__read_profile,
-        #     'get_profile_stats': self.__get_profile_stats,
-        #     'meter': self.__meter
-        # }
         storage_params = kwargs.get('storage')
         storage_ctx = None
         if storage_params is not None:
             storage_type = storage_params.pop('type', None)
-            # self.storage_fns = {
-            #     'id': self.participant_id,
-            #     'timing': self.__timing
-            # }
             self.storage = importlib.import_module('TREX_Core.devices.' + storage_type).Storage(**storage_params)
             self.storage.timing = self.__timing
-            # trader_fns['storage'] = {
-            #     'info': self.storage.get_info,
-            #     'check_schedule': self.storage.check_schedule
-            #     # 'schedule_energy': self.storage.schedule_energy
-            # }
             storage_ctx = StorageContext(
                 get_info=self.storage.get_info,
                 check_schedule=self.storage.check_schedule
             )
 
-        ctx = TraderContext(
+        trader_ctx = TraderContext(
             client=self.__client,
             participant_id=self.participant_id,
             market_id=self.market_id,
@@ -105,7 +95,7 @@ class Participant(ABC):
             market_info=self.__market_info,
             read_profile=self.__read_profile,
             get_profile_stats=self.__get_profile_stats,
-            meter=self.__meter,
+            meter=lambda: self.__meter,
             storage=storage_ctx
         )
         trader_type = trader_params.pop('type', None)
@@ -115,7 +105,7 @@ class Participant(ABC):
             Trader = importlib.import_module('traders.' + trader_type).Trader
         except ImportError:
             Trader = importlib.import_module('TREX_Core.traders.' + trader_type).Trader
-        self.trader = Trader(context=ctx, **trader_params)
+        self.trader = Trader(context=trader_ctx, **trader_params)
 
         self.__profile_params = {
             'generation_scale': kwargs.get('generation', {}).get('scale', 1),
@@ -125,10 +115,20 @@ class Participant(ABC):
         if synthetic_profile:
             self.__profile_params['synthetic_profile'] = synthetic_profile
 
+        r_ctx = RecordsContext(
+            participant_id=self.participant_id,
+            timing=self.__timing,
+            next_actions= lambda: self.__next_actions,
+            read_profile=self.__read_profile,
+            meter=lambda: self.__meter,
+            storage=storage_ctx,
+            trader=trader_ctx
+        )
         if 'records' in kwargs:
             from TREX_Core.utils.records import Records
             self.records = Records(db_string=self.__output_db_path,
-                                   columns=kwargs['records'])
+                                   columns=kwargs['records'],
+                                   context=r_ctx)
         # print(trader_type, storage_params,  self.__profile_params)
 
         # if 'market_ns' in kwargs:
@@ -431,10 +431,10 @@ class Participant(ABC):
         # print(self.__market_info)
         # agent_act tells what actions controller should perform
         # controller should perform those actions accordingly, but will have the option not to
-        next_actions = await self.trader.step()
+        self.__next_actions = await self.trader.step()
 
         # next_actions = await self.trader.act()
-        await self.__take_actions(next_actions)
+        await self.__take_actions(self.__next_actions)
         # await self.trader.learn()
         if hasattr(self, 'storage'):
             await self.storage.step()
@@ -446,16 +446,7 @@ class Participant(ABC):
         # await self.__client.emit('end_turn', namespace='/market')
         # await self.__client.emit('end_turn')
         if hasattr(self, 'records'):
-            records = dict(
-                time=self.__timing['current_round'][1],
-                participant_id=self.participant_id,
-                meter=self.__meter,
-                next_observations=await self.make_observations_for_records(self.__timing['next_settle']),
-                next_actions=next_actions)
-            if hasattr(self, 'storage'):
-                records.update(self.storage.get_info('remaining_energy', 'state_of_charge'))
-                # records['storage'] = self.storage
-            await self.records.track(records)
+            await self.records.track()
             await self.records.save(1000)
         self.__client.publish(f'{self.market_id}/simulation/end_turn',
                               self.participant_id,

@@ -8,16 +8,41 @@ import ast
 from pprint import pprint
 
 class Records:
-    def __init__(self, db_string, columns):
+    def __init__(self, db_string: str, columns: list[str], **kwargs):
+        self.__HANDLERS: dict[str, tuple[dict, callable, list[str]]] = {
+            # column metadata, handler function, dependencies
+            'time': ({"type": "Integer", "primary": True}, self.__get_current_round, []),
+            'participant_id': ({"type": "String", "primary": True}, self.__get_participant_id, []),
+            'meter': ({"type": "JSON"}, self.__get_meter, []),
+            'next_actions': ({"type": "JSON"}, self.__get_next_actions, []),
+            # 'remaining_energy':{"type": "Integer"}
+            # "metadata": {"type": "JSON"},
+            # "next_actions": {"type": "JSON"},
+            "storage_info": ({"type": "JSON"}, self.__get_storage_info, []),
+            "remaining_energy": ({"type": "Integer"}, self.__get_remaining_energy, ["storage_info"]),
+            "state_of_charge": ({"type": "Float"}, self.__get_state_of_charge, ["storage_info"])
+        }
+
         self.__db = {
             'path': db_string,
             'sa_engine': sqlalchemy.create_engine(db_string),
             'connection': None  # Added to store a reusable database connection
         }
         # self.__columns = columns
-        self.__columns = columns
+        self.__columns = {
+            "time": {"type": "Integer", "primary": True},
+            "participant_id": {"type": "String", "primary": True}
+        }
+        for column in columns:
+            column_meta = self.__HANDLERS.get(column, None)
+            if column_meta:
+                self.__columns.update({
+                    column: column_meta[0]
+                })
 
-        # pprint(self.__columns)
+        self.__handle_order = self.order_handler(list(self.__columns.keys()))
+        # self.__handle_order = list(self.__columns.keys())
+        # self.__columns.update(columns)
 
         self.__records = list()
         self.__last_record_time = 0
@@ -26,6 +51,8 @@ class Records:
         
         # Track pending database write tasks
         self.__pending_write_tasks = []
+        self.participant = kwargs.get('context')
+        # print(self.participant)
 
     async def create_table(self, table_name):
         table_name += '_records'
@@ -56,11 +83,22 @@ class Records:
     #         # self.__records[record] = []
     #         self.__columns[record] = column
 
-    async def track(self, records):
+    async def track(self):
+        # print('track', self.__handle_order)
         # if not self.__track:
         #     return
-        filtered_records = {key: records[key] for key in self.__columns.keys() if key in records}
+        results_cache = dict()
+        for key in self.__handle_order:
+            # print(key)
+            if key in results_cache:
+                continue
+            # print()
+            # print(key, await self.__HANDLERS[key][1](results_cache))
+            results_cache[key] = await self.__HANDLERS[key][1](results_cache)
+        filtered_records = {key: results_cache[key] for key in self.__columns.keys() if key in results_cache}
+        # print(filtered_records)
         self.__records.append(filtered_records)
+        # print(len(self.__records))
 
     # def update_db_info(self, db_string, table_name):
     #     self.__db['path'] = db_string
@@ -167,3 +205,71 @@ class Records:
         if self.__db.get('connection'):
             await self.__db['connection'].disconnect()
             self.__db['connection'] = None
+
+    # async def snapshot_records(self):
+    #     snapshot = {
+    #         'time': self.participant.timing['current_round'][1],
+    #         'participant_id': self.participant.id
+    #     }
+    #     return snapshot
+
+    def order_handler(self, records: list) -> list:
+        """
+        Build snapshot dict honouring handler dependencies.
+        Each handler receives the accumulating snapshot so it can consume
+        results of its dependencies.
+        """
+        # Client always sends a `meta` dict; use its keys for requested snapshots
+        # requested = list(meta_dict.keys())
+        seen: set[str] = set()
+        order: list[str] = []
+
+        def dfs(key: str):
+            nonlocal seen, order
+            if key in seen:
+                return
+            if key not in self.__HANDLERS:  # skip unknown base names
+                return
+            seen.add(key)
+            deps = self.__HANDLERS[key][2]
+            for dep in deps:
+                dfs(dep)
+            order.append(key)
+
+        for k in records:
+            dfs(k)
+
+        return order
+
+    async def __get_current_round(self, results_cache):
+        # return 'round'
+        # print(self.participant)
+        return self.participant.timing['current_round'][1]
+
+    async def __get_participant_id(self, results_cache):
+        # return 'id'
+        return self.participant.participant_id
+
+    async def __get_meter(self, results_cache):
+        # return 'meter'
+        return self.participant.meter()
+
+    async def __get_next_actions(self, results_cache):
+        return self.participant.next_actions()
+
+    async def __get_storage_info(self, results_cache):
+        if not hasattr(self.participant, 'storage'):
+            return None
+        return self.participant.storage.get_info('remaining_energy', 'state_of_charge')
+
+    async def __get_remaining_energy(self, results_cache):
+        return results_cache["storage_info"]["remaining_energy"]
+
+    async def __get_state_of_charge(self, results_cache):
+        return results_cache["storage_info"]["state_of_charge"]
+
+    async def __get_trader_metadata(self, results_cache):
+        if not hasattr(self.participant.trader, 'metadata'):
+            return None
+        return self.participant.trader.metadata
+
