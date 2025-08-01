@@ -261,6 +261,7 @@ class Runner:
         policy_clients = [participant for participant in config['participants'] if
                          config['participants'][participant]['trader']['type'] == 'policy_client']
         has_policy_clients = len(policy_clients) > 0
+        policy_servers = [key for key in config if key.endswith("_policy_server")]
 
         if simulation_type == 'baseline':
             # if isinstance(config['study']['start_datetime'], str):
@@ -272,7 +273,9 @@ class Runner:
                     'learning': False,
                     'type': 'baseline_agent'
                 })
-            config.pop('synchronous_policy_server', None)
+
+            for server in policy_servers:
+                config.pop(server, None)
 
         if simulation_type == 'training':
             config['market']['id'] = simulation_type
@@ -282,8 +285,11 @@ class Runner:
                 config['participants'][participant]['trader']['learning'] = True
                 config['participants'][participant]['trader']['study_name'] = config['study']['name']
 
-            if not has_policy_clients or 'synchronous_policy_server' not in config:
-                config.pop('synchronous_policy_server', None)
+            if not has_policy_clients:
+                for server in policy_servers:
+                    config.pop(server, None)
+                # or 'synchronous_policy_server' not in config:
+                # config.pop('synchronous_policy_server', None)
 
         if simulation_type == 'validation':
             config['market']['id'] = simulation_type
