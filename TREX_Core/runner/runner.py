@@ -250,6 +250,10 @@ class Runner:
         #     for table in tables:
         #         db[table].drop()
 
+        default_participant_configs = config['participants'].pop('_default', {})
+        for participant in config['participants']:
+            config['participants'][participant] = default_participant_configs | config['participants'][participant]
+
         learning_participants = [participant for participant in config['participants'] if
                                  'learning' in config['participants'][participant]['trader'] and
                                  config['participants'][participant]['trader']['learning']]
@@ -356,7 +360,7 @@ class Runner:
             if parallel > 1:
                 config['market']['id'] = f'{config['market']['id']}/{idx}'
 
-            exclude = {'version', 'study', 'server', 'database', 'records', 'participants'}
+            exclude = {'version', 'study', 'server', 'database', 'records', 'participants', '_default'}
 
             if isinstance(skip, str):
                 skip = (skip,)
@@ -383,6 +387,7 @@ class Runner:
                     launch_list.append(module.cli(config))
             if 'sim_controller' not in exclude:
                 launch_list.append(sim_controller.cli(config))
+
             for p_id in config['participants']:
                 if p_id not in exclude:
                     launch_list.append(participant.cli(config, p_id))
