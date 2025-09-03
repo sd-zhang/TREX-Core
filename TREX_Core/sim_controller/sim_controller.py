@@ -111,6 +111,8 @@ class Controller:
                                    columns=config['records'])
 
         self._write_state_lock = asyncio.Lock()
+        self.__report_steps = self.__config['study']['report_steps'] if 'report_steps' in self.__config['study'] else \
+                              self.__end_step
 
 
     async def delay(self, s):
@@ -467,7 +469,7 @@ class Controller:
 
         # Beginning new time step
         if self.__current_step <= self.__end_step:
-            await self.__print_step_time(self.__end_step)
+            await self.__print_step_time(self.__report_steps)
             self.__current_step += 1
 
             message = {
