@@ -130,4 +130,8 @@ if __name__ == '__main__':
                     port=args.port,
                     config=json.loads(args.config))
 
-    asyncio.run(client.run())
+    try:
+        import uvloop
+        uvloop.run(client.run())
+    except ImportError:
+        asyncio.run(client.run())

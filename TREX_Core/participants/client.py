@@ -214,4 +214,8 @@ if __name__ == '__main__':
                     # load_scale=float(args.load_scale),
                     **json.loads(args.configs)
                     )
-    asyncio.run(client.run())
+    try:
+        import uvloop
+        uvloop.run(client.run())
+    except ImportError:
+        asyncio.run(client.run())
