@@ -29,6 +29,7 @@ class TraderContext:
     ledger:            ledger.Ledger
     extra_tx:          Dict
     market_info:       Dict
+    metadata:          Dict
     read_profile:      Callable
     get_profile_stats: Callable
     meter:             Callable[[], Dict]
@@ -68,6 +69,7 @@ class Participant(ABC):
         self.__ledger = ledger.Ledger(self.participant_id)
         self.__extra_transactions = {}
         self.__market_info = {}
+        self.__trader_metadata = {}
         self.__meter = {}
         self.__timing = {}
         self.__next_actions = {}
@@ -93,6 +95,7 @@ class Participant(ABC):
             ledger=self.__ledger,
             extra_tx=self.__extra_transactions,
             market_info=self.__market_info,
+            metadata=self.__trader_metadata,
             read_profile=self.__read_profile,
             get_profile_stats=self.__get_profile_stats,
             meter=lambda: self.__meter,
