@@ -16,7 +16,7 @@ class Records:
             'meter': ({"type": "JSON"}, self.__get_meter, []),
             'next_actions': ({"type": "JSON"}, self.__get_next_actions, []),
             # 'remaining_energy':{"type": "Integer"}
-            # "metadata": {"type": "JSON"},
+            "metadata": ({"type": "JSON"}, self.__get_participant_metadata, []),
             # "next_actions": {"type": "JSON"},
             "storage_info": ({"type": "JSON"}, self.__get_storage_info, []),
             "remaining_energy": ({"type": "Integer"}, self.__get_remaining_energy, ["storage_info"]),
@@ -268,8 +268,9 @@ class Records:
     async def __get_state_of_charge(self, results_cache):
         return results_cache["storage_info"]["state_of_charge"]
 
-    async def __get_trader_metadata(self, results_cache):
-        if not hasattr(self.participant.trader, 'metadata'):
-            return None
+    async def __get_participant_metadata(self, results_cache):
+        # print('ping', flush=True)
+        # print('metadata:', self.participant.trader.metadata, flush=True)
+        # print('pong', flush=True)
         return self.participant.trader.metadata
 
