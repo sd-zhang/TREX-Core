@@ -29,7 +29,7 @@ class TraderContext:
     ledger:            ledger.Ledger
     extra_tx:          Dict
     market_info:       Dict
-    metadata:          Dict
+    metadata:          Optional[Callable[[], Dict]]
     read_profile:      Callable
     get_profile_stats: Callable
     meter:             Callable[[], Dict]
@@ -95,7 +95,7 @@ class Participant(ABC):
             ledger=self.__ledger,
             extra_tx=self.__extra_transactions,
             market_info=self.__market_info,
-            metadata=self.__trader_metadata,
+            metadata=lambda: self.__trader_metadata,
             read_profile=self.__read_profile,
             get_profile_stats=self.__get_profile_stats,
             meter=lambda: self.__meter,
@@ -121,7 +121,7 @@ class Participant(ABC):
         r_ctx = RecordsContext(
             participant_id=self.participant_id,
             timing=self.__timing,
-            next_actions= lambda: self.__next_actions,
+            next_actions=lambda: self.__next_actions,
             read_profile=self.__read_profile,
             meter=lambda: self.__meter,
             storage=storage_ctx,

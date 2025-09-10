@@ -4,8 +4,9 @@ from sqlalchemy import MetaData, Column
 import asyncio
 import databases
 import datetime
-import ast
-from pprint import pprint
+# import ast
+# from pprint import pprint
+# from frozendict import frozendict
 
 class Records:
     def __init__(self, db_string: str, columns: list[str], **kwargs):
@@ -15,9 +16,7 @@ class Records:
             'participant_id': ({"type": "String", "primary": True}, self.__get_participant_id, []),
             'meter': ({"type": "JSON"}, self.__get_meter, []),
             'next_actions': ({"type": "JSON"}, self.__get_next_actions, []),
-            # 'remaining_energy':{"type": "Integer"}
-            # "metadata": {"type": "JSON"},
-            # "next_actions": {"type": "JSON"},
+            "metadata": ({"type": "JSON"}, self.__get_trader_metadata, []),
             "storage_info": ({"type": "JSON"}, self.__get_storage_info, []),
             "remaining_energy": ({"type": "Integer"}, self.__get_remaining_energy, ["storage_info"]),
             "state_of_charge": ({"type": "Float"}, self.__get_state_of_charge, ["storage_info"])
@@ -271,5 +270,5 @@ class Records:
     async def __get_trader_metadata(self, results_cache):
         if not hasattr(self.participant.trader, 'metadata'):
             return None
-        return self.participant.trader.metadata
+        return self.participant.trader.metadata()
 
