@@ -4,9 +4,8 @@ from sqlalchemy import MetaData, Column
 import asyncio
 import databases
 import datetime
-# import ast
-# from pprint import pprint
-# from frozendict import frozendict
+import ast
+from pprint import pprint
 
 class Records:
     def __init__(self, db_string: str, columns: list[str], **kwargs):
@@ -16,7 +15,9 @@ class Records:
             'participant_id': ({"type": "String", "primary": True}, self.__get_participant_id, []),
             'meter': ({"type": "JSON"}, self.__get_meter, []),
             'next_actions': ({"type": "JSON"}, self.__get_next_actions, []),
-            "metadata": ({"type": "JSON"}, self.__get_trader_metadata, []),
+            # 'remaining_energy':{"type": "Integer"}
+            "metadata": ({"type": "JSON"}, self.__get_participant_metadata, []),
+            # "next_actions": {"type": "JSON"},
             "storage_info": ({"type": "JSON"}, self.__get_storage_info, []),
             "remaining_energy": ({"type": "Integer"}, self.__get_remaining_energy, ["storage_info"]),
             "state_of_charge": ({"type": "Float"}, self.__get_state_of_charge, ["storage_info"])
@@ -267,8 +268,9 @@ class Records:
     async def __get_state_of_charge(self, results_cache):
         return results_cache["storage_info"]["state_of_charge"]
 
-    async def __get_trader_metadata(self, results_cache):
-        if not hasattr(self.participant.trader, 'metadata'):
-            return None
-        return self.participant.trader.metadata()
+    async def __get_participant_metadata(self, results_cache):
+        # print('ping', flush=True)
+        # print('metadata:', self.participant.trader.metadata, flush=True)
+        # print('pong', flush=True)
+        return self.participant.trader.metadata
 
