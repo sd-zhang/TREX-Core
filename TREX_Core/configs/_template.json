@@ -1,5 +1,5 @@
 {
-  "version": "5.1.0",
+  "version": "5.2.0",
   "study": {
     "name": "sim_name", // the simulation name defines the database name as well as local storage paths.
     "description": "",  // (optional) a description the simulation
@@ -8,15 +8,14 @@
     "days": 30,
     "episodes": 10
   },
-  //  "records": {
-//    "time": {"type": "Integer", "primary": true},
-//    "participant_id": {"type": "String", "primary": true},
-//    "meter": {"type": "JSON"},
-//    "next_observations": {"type": "JSON"},
-//    "next_actions": {"type": "JSON"},
-//    "remaining_energy":{"type": "Integer"},
-//    "state_of_charge":{"type": "Float"}
-//  },
+ "records": [
+//      "metadata",
+      "meter",
+//      "next_observations",
+      "next_actions",
+      "remaining_energy",
+      "state_of_charge"
+  ],
   "database": {
     "host": "localhost",
 //    "port": 1883,
@@ -57,6 +56,41 @@
     }
   },
   "participants": { // each participant must be defined in the following format
+    "_default": {
+      // the participant name must exist in the profile DB defined above
+      "type": "Residential",
+      "trader": {
+        "track_metrics": false,
+        "type": "basic_trader",
+        // type must exist in the _agent/trader folder
+        "bid_price": 0.14,
+        // (optional) default bid price.
+        "ask_price": 0.07,
+        // (optional) default ask price
+        "reward_function": "net_profit"
+      },
+      "load": {
+        "scale": 1
+        // multiply the load data from the profile database to be used in simulation
+      },
+      "generation": {
+        "scale": 1
+        // multiply the generation data from the profile database to be used in simulation
+      },
+      "storage": {
+        // (optional) Defines the storage system to be attached to a participant
+        "type": "Bess",
+        // storage type, must exist in _devices
+        "capacity": 6400,
+        // Usable capacity defined in Wh
+        "power": 5000,
+        // constant charge/discharge rate defined in W
+        "efficiency": 0.9,
+        // one way efficiency. round-trip efficiency is efficiency^2
+        "monthly_sdr": 0
+        // monthly self-discharge rate as a fraction of usable capacity
+      }
+    },
     "R4": { // the participant name must exist in the profile DB defined above
       "type": "Residential",
       "trader": {
