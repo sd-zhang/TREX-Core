@@ -6,6 +6,7 @@ import databases
 import datetime
 import ast
 from pprint import pprint
+import orjson
 
 class Records:
     def __init__(self, db_string: str, columns: list[str], **kwargs):
@@ -269,8 +270,5 @@ class Records:
         return results_cache["storage_info"]["state_of_charge"]
 
     async def __get_participant_metadata(self, results_cache):
-        # print('ping', flush=True)
-        # print('metadata:', self.participant.trader.metadata, flush=True)
-        # print('pong', flush=True)
-        return self.participant.trader.metadata
+        return orjson.loads(orjson.dumps(self.participant.trader.metadata))
 

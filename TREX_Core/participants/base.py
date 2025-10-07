@@ -29,7 +29,8 @@ class TraderContext:
     ledger:            ledger.Ledger
     extra_tx:          Dict
     market_info:       Dict
-    metadata:          Optional[Callable[[], Dict]]
+    metadata:          Optional[Dict]
+    # metadata:          Optional[Callable[[], Dict]]
     read_profile:      Callable
     get_profile_stats: Callable
     meter:             Callable[[], Dict]
@@ -45,6 +46,7 @@ class RecordsContext:
     # get_profile_stats: Callable
     storage:           Optional[StorageContext] = None
     trader:            Optional[TraderContext] = None
+    # trader_metadata:   Optional[dict] = None
 
 class Participant(ABC):
     """
@@ -67,12 +69,12 @@ class Participant(ABC):
         # print(self.output_db_path)
         # Initialize market variables
         self.__ledger = ledger.Ledger(self.participant_id)
-        self.__extra_transactions = {}
-        self.__market_info = {}
-        self.__trader_metadata = {}
-        self.__meter = {}
-        self.__timing = {}
-        self.__next_actions = {}
+        self.__extra_transactions = dict()
+        self.__market_info = dict()
+        self.__trader_metadata = dict()
+        self.__meter = dict()
+        self.__timing = dict()
+        self.__next_actions = dict()
 
         # Initialize trader variables and functions
         trader_params = kwargs.get('trader')
@@ -95,7 +97,8 @@ class Participant(ABC):
             ledger=self.__ledger,
             extra_tx=self.__extra_transactions,
             market_info=self.__market_info,
-            metadata=lambda: self.__trader_metadata,
+            # metadata=lambda: self.__trader_metadata,
+            metadata=self.__trader_metadata,
             read_profile=self.__read_profile,
             get_profile_stats=self.__get_profile_stats,
             meter=lambda: self.__meter,
@@ -118,7 +121,7 @@ class Participant(ABC):
         if synthetic_profile:
             self.__profile_params['synthetic_profile'] = synthetic_profile
 
-        r_ctx = RecordsContext(
+        records_ctx = RecordsContext(
             participant_id=self.participant_id,
             timing=self.__timing,
             next_actions=lambda: self.__next_actions,
@@ -126,12 +129,13 @@ class Participant(ABC):
             meter=lambda: self.__meter,
             storage=storage_ctx,
             trader=trader_ctx
+            # trader_metadata=self.__trader_metadata
         )
         if 'records' in kwargs:
             from TREX_Core.utils.records import Records
             self.records = Records(db_string=self.__output_db_path,
                                    columns=kwargs['records'],
-                                   context=r_ctx)
+                                   context=records_ctx)
         # print(trader_type, storage_params,  self.__profile_params)
 
         # if 'market_ns' in kwargs:

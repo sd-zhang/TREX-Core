@@ -18,7 +18,8 @@ setup(
                       "sqlalchemy",
                       "sqlalchemy-utils",
                       "websockets",
-                      "numpy"
+                      "numpy",
+                      "orjson"
                       ],
     packages=find_packages()
 )
