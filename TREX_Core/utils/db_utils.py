@@ -5,6 +5,33 @@ from sqlalchemy import create_engine, MetaData, Column, func
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import sessionmaker
 import databases
+import os
+import commentjson
+
+def get_credentials(root_dir:str=""):
+    def _load_json_file(file_path):
+        with open(file_path) as f:
+            json_file = commentjson.load(f)
+        return json_file
+
+    if not root_dir:
+        root_dir = os.getcwd()
+    credentials_file = os.path.join(root_dir, 'configs', '_credentials' + '.json')
+    credentials = _load_json_file(credentials_file) if os.path.isfile(credentials_file) else None
+    return credentials
+
+def make_db_str(credentials:dict, db_config:dict, db_name:str="", table_name:str=""):
+    connector = db_config['connector']
+    host = db_config['host']
+    port = db_config['port']
+    db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{host}:{port}'
+    if db_name:
+        db_str += f'/{db_name}'
+    if table_name:
+        db_str += f'/{table_name}'
+
+    # print(db_str)
+    return db_str
 
 def create_db(db_string, engine=None):
     if not engine:

@@ -32,7 +32,7 @@ class TraderContext:
     metadata:          Optional[Dict]
     # metadata:          Optional[Callable[[], Dict]]
     read_profile:      Callable
-    get_profile_stats: Callable
+    # get_profile_stats: Callable
     meter:             Callable[[], Dict]
     storage:           Optional[StorageContext] = None
 
@@ -53,7 +53,7 @@ class Participant(ABC):
     Participant is the interface layer between local resources and the Market
     """
 
-    def __init__(self, client, participant_id, market_id, profile_db_path, output_db_path, **kwargs):
+    def __init__(self, client, participant_id, market_id, database_config, **kwargs):
         # Initialize participant variables
         self.server_online = False
         self.run = True
@@ -62,10 +62,11 @@ class Participant(ABC):
         self.participant_id = str(participant_id)
         self.sid = kwargs.get('sid', market_id)
         self.__client = client
+        self.__database_config = database_config
         self.__profile = {
-            'db_path': profile_db_path
+            # 'db_path': profile_db_path
         }
-        self.__output_db_path = output_db_path
+        # self.__output_db_path = output_db_path
         # print(self.output_db_path)
         # Initialize market variables
         self.__ledger = ledger.Ledger(self.participant_id)
@@ -100,13 +101,26 @@ class Participant(ABC):
             # metadata=lambda: self.__trader_metadata,
             metadata=self.__trader_metadata,
             read_profile=self.__read_profile,
-            get_profile_stats=self.__get_profile_stats,
+            # get_profile_stats=self.__get_profile_stats,
             meter=lambda: self.__meter,
             storage=storage_ctx
         )
         trader_type = trader_params.pop('type', None)
         # if trader_type == 'remote_agent':
         #     trader_fns['emit'] = self.__client.emit
+        if 'actions' in trader_params and'action_replay' in trader_params['actions']:
+            # "actions": {
+            #     "replay": {
+            #         "records": "citylearn_stevenweibull_test2",
+            #         "market": "training",
+            #         "episode": 42
+            #     },
+            replay_params = trader_params['actions']['replay']
+            db_path = f'{replay_params['records']}/{replay_params['episode']}_{replay_params['market']}_records'
+
+
+            pass
+
         try:
             Trader = importlib.import_module('traders.' + trader_type).Trader
         except ImportError:
@@ -133,14 +147,14 @@ class Participant(ABC):
         )
         if 'records' in kwargs:
             from TREX_Core.utils.records import Records
-
-            self.records = Records(db_string=self.__output_db_path,
+            output_db_str = db_utils.make_db_str(db_utils.get_credentials(),
+                                          self.__database_config,
+                                          self.__database_config['output_db'])
+            self.records = Records(db_string=output_db_str,
                                    columns=kwargs['records'],
                                    context=records_ctx)
 
-        if 'action_replay' in kwargs:
-            records_db = ''
-            pass
+
         # print(trader_type, storage_params,  self.__profile_params)
 
         # if 'market_ns' in kwargs:
@@ -163,23 +177,26 @@ class Participant(ABC):
         Args:
             db_path ([type]): [description]
         """
-        await self.open_profile_db(self.__profile['db_path'])
+        credentials = db_utils.get_credentials()
+        db_str = db_utils.make_db_str(credentials, self.__database_config, self.__database_config['profiles_db'])
+
+        await self.open_profile_db(db_str)
 
 
-    async def __get_profile_stats(self):
-        """reads and returns pre-calculated profile statistics for calculating Z scores, if available.
-        """
-        db = self.__profile['db']
-        table = db_utils.get_table(self.__profile['db_path'], "_statistics")
-        query = table.select().where(table.c.name == self.__profile['name'])
-        # async with db.transaction():
-        row = await db.fetch_one(query)
-        if row is not None:
-            return dict(row)
-        return None
+    # async def __get_profile_stats(self):
+    #     """reads and returns pre-calculated profile statistics for calculating Z scores, if available.
+    #     """
+    #     db = self.__profile['db']
+    #     table = db_utils.get_table(self.__profile['db_path'], "_statistics")
+    #     query = table.select().where(table.c.name == self.__profile['name'])
+    #     # async with db.transaction():
+    #     row = await db.fetch_one(query)
+    #     if row is not None:
+    #         return dict(row)
+    #     return None
 
     async def open_profile_db(self, db_path):
-        self.__profile['db_path'] = db_path
+        # self.__profile['db_path'] = db_path
         self.__profile['db'] = databases.Database(db_path)
         profile_name = self.__profile_params['synthetic_profile'] if 'synthetic_profile' in self.__profile_params \
             else self.participant_id
@@ -188,6 +205,12 @@ class Participant(ABC):
         if 'db_table' in self.__profile or self.__profile['db_table'] is not None:
             await self.__profile['db'].connect()
         # await self.get_profile_stats(self.__profile['db_path'])
+
+    async def open_action_replay_db(self, db_path, table_name):
+        self.__action_replay['db'] = databases.Database(db_path)
+        self.__action_replay['db_table'] = db_utils.get_table(db_path, table_name)
+        if 'db_table' in self.__action_replay or self.__action_replay['db_table'] is not None:
+            await self.__action_replay['db'].connect()
 
     # @tenacity.retry(wait=tenacity.wait_fixed(3))
     async def join_market(self):

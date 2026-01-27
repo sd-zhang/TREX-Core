@@ -16,7 +16,8 @@ def cli(configs):
 
     market_configs = configs['market']
     market_configs['timezone'] = configs['study']['timezone']
-    market_configs['output_db'] = configs['study']['output_database']
+    market_configs['database_config'] = configs['database']
+    # market_configs['output_db'] = configs['study']['output_database']
 
     # TODO: temporarily add method to manually define profile step size until auto detection works
     if 'time_step_size' in configs['study']:

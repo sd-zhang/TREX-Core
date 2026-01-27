@@ -8,7 +8,7 @@ from TREX_Core.mqtt.base_gmqtt import BaseMQTTClient
 class Client(BaseMQTTClient):
     """A socket.io client wrapper for participants
     """
-    def __init__(self, host, port, participant_id, market_id, profile_db_path, output_db_path, **kwargs):
+    def __init__(self, host, port, participant_id, market_id, database_config, **kwargs):
         super().__init__(host, port, consumers=1)
         will_message = Message(f'{market_id}/join_market/{participant_id}',
                                '',
@@ -21,8 +21,9 @@ class Client(BaseMQTTClient):
         self.participant = participant(client=self.client,
                                        participant_id=participant_id,
                                        market_id=market_id,
-                                       profile_db_path=profile_db_path,
-                                       output_db_path=output_db_path,
+                                       database_config=database_config,
+                                       # profile_db_path=profile_db_path,
+                                       # output_db_path=output_db_path,
                                        # trader_params=trader_params,
                                        # storage_params=storage_params,
                                        **kwargs)
@@ -190,10 +191,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--id', help='')
     parser.add_argument('--market_id', help='')
+    parser.add_argument('--database_config', help='')
     parser.add_argument('--host', default="localhost", help='')
     parser.add_argument('--port', default=1883, help='')
-    parser.add_argument('--profile_db_path', default=None, help='')
-    parser.add_argument('--output_db_path', default=None, help='')
+    # parser.add_argument('--profile_db_path', default=None, help='')
+    # parser.add_argument('--output_db_path', default=None, help='')
     # parser.add_argument('--trader', default=None, help='')
     # parser.add_argument('--storage', default=None, help='')
     # parser.add_argument('--generation_scale', default=1, help='')
@@ -206,8 +208,9 @@ if __name__ == '__main__':
                     # participant_type=args.type,
                     participant_id=args.id,
                     market_id=args.market_id,
-                    profile_db_path=args.profile_db_path,
-                    output_db_path=args.output_db_path,
+                    database_config=json.loads(args.database_config),
+                    # profile_db_path=args.profile_db_path,
+                    # output_db_path=args.output_db_path,
                     # trader_params=args.trader,
                     # storage_params=args.storage,
                     # generation_scale=float(args.generation_scale),

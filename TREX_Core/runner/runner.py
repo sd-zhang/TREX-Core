@@ -23,12 +23,12 @@ def get_config(config_name: str, original=False, **kwargs):
 
     if original:
         return config
-
+    config['study']['root_dir'] = root_dir
     config['study']['checkpoint_save_path'] = os.path.join(root_dir, 'checkpoint')
 
     # credentials_file = 'configs/_credentials.json'
-    credentials_file = os.path.join(root_dir, 'configs', '_credentials'+'.json')
-    credentials = _load_json_file(credentials_file) if os.path.isfile(credentials_file) else None
+    # credentials_file = os.path.join(root_dir, 'configs', '_credentials'+'.json')
+    # credentials = _load_json_file(credentials_file) if os.path.isfile(credentials_file) else None
 
     if 'name' in config['study'] and config['study']['name']:
         study_name = config['study']['name'].replace(' ', '_')
@@ -42,18 +42,18 @@ def get_config(config_name: str, original=False, **kwargs):
     #     "profiles_db": "citylearn_2022"
     # },
     # database = config['database']
-    connector = config['database']['connector']
-    db_host = config['database']['host']
-    db_port = config['database'].get('port', 5432)
-    profiles_db = config['database']['profiles_db']
+    # connector = config['database']['connector']
+    # db_host = config['database']['host']
+    # db_port = config['database'].get('port', 5432)
+    # profiles_db = config['database']['profiles_db']
 
-    if credentials and ('profiles_db_location' not in config['study']):
-        profiles_db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{db_host}:{db_port}/{profiles_db}'
-        config['study']['profiles_db_location'] = profiles_db_str
-
-    if credentials and ('output_db_location' not in config['study']):
-        output_db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{db_host}:{db_port}'
-        config['study']['output_db_location'] = output_db_str
+    # if credentials and ('profiles_db_location' not in config['study']):
+    #     profiles_db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{db_host}:{db_port}/{profiles_db}'
+    #     config['study']['profiles_db_location'] = profiles_db_str
+    #
+    # if credentials and ('output_db_location' not in config['study']):
+    #     output_db_str = f'{connector}://{credentials['username']}:{credentials['password']}@{db_host}:{db_port}'
+    #     config['study']['output_db_location'] = output_db_str
     # engine = create_engine(db_string)
 
     # if resume:
@@ -70,12 +70,10 @@ def get_config(config_name: str, original=False, **kwargs):
     #
     # # if not resume
     config['study']['name'] = study_name
-    db_string = config['study']['output_db_location'] + '/' + study_name
-    if 'output_database' not in config['study'] or not config['study']['output_database']:
-        config['study']['output_database'] = db_string
-
-
-
+    # db_string = config['study']['output_db_location'] + '/' + study_name
+    # if 'output_database' not in config['study'] or not config['study']['output_database']:
+    #     config['study']['output_database'] = db_string
+    config['database']['output_db'] = study_name
 
     return config
 
@@ -148,6 +146,9 @@ class Runner:
         # if not os.path.exists(sim_path):
         #     os.mkdir(sim_path)
         db_string = config['study']['output_database']
+
+        db_utils.make_db_str()
+
         engine = create_engine(db_string)
         if not sqlalchemy.inspect(engine).has_table('metadata'):
             self.__create_metadata_table(db_string)
@@ -251,8 +252,13 @@ class Runner:
         #         db[table].drop()
 
         default_participant_configs = config['participants'].pop('_default', {})
+
+
+
         for participant in config['participants']:
             config['participants'][participant] = default_participant_configs | config['participants'][participant]
+
+
 
         learning_participants = [participant for participant in config['participants'] if
                                  'learning' in config['participants'][participant]['trader'] and
@@ -291,12 +297,19 @@ class Runner:
                 # or 'synchronous_policy_server' not in config:
                 # config.pop('synchronous_policy_server', None)
 
-        if simulation_type == 'validation':
+        if simulation_type == 'replay':
             config['market']['id'] = simulation_type
-            config['market']['save_transactions'] = True
+            config['market']['save_transactions'] = False
 
             for participant in config['participants']:
-                config['participants'][participant]['trader']['learning'] = False
+                trader = config['participants'][participant]['trader']
+                trader['learning'] = False
+                # TODO: this is where we add black magic for action replay
+                if 'actions' in trader and 'action_replay' in trader['actions']:
+                    replay_params = trader['actions']['replay']
+                    db_path = f'{replay_params['records']}/{replay_params['episode']}_{replay_params['market']}_records'
+
+
 
         start_datetime = config['study']['start_datetime']
         timezone = config['study']['timezone']
@@ -312,10 +325,15 @@ class Runner:
         # energy_profile_names = set(energy_profile_names)
         random_check = utils.secure_random.sample(list(energy_profile_names), min(len(energy_profile_names), 5))
         interval_checks = list()
-        engine = create_engine(config['study']['profiles_db_location'])
+
+        profile_db_str = db_utils.make_db_str(db_utils.get_credentials(),
+                                         self.config['database'],
+                                         self.config['database']['profiles_db'])
+
+        engine = create_engine(profile_db_str)
         with Session(engine) as session:
             for profile_name in random_check:
-                table = db_utils.get_table(config['study']['profiles_db_location'], profile_name, engine)
+                table = db_utils.get_table(profile_db_str, profile_name, engine)
                 stm = select(table.c.time).where(table.c.time >= start_time).fetch(100)
                 out = session.execute(stm).all()
                 out_array = np.array(out)
@@ -434,7 +452,13 @@ class Runner:
             print('CONFIG NOT COMPATIBLE')
             return
 
-        db_string = self.config['study']['output_database']
+        # db_string = self.config['study']['output_database']
+        credentials = db_utils.get_credentials()
+        database_config = self.config['database']
+        db_string = db_utils.make_db_str(credentials,
+                             database_config,
+                             self.config['study']['name'])
+
         if self.purge_db and database_exists(db_string):
             drop_database(db_string)
         # config_file = 'configs/' + self.config_file_name + '.json'

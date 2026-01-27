@@ -8,6 +8,7 @@ from collections import deque
 from statistics import mean
 from sqlalchemy_utils import database_exists
 # from TREX_Core
+from TREX_Core.utils import db_utils
 
 
 # from _clients.sim_controller.training_controller import TrainingController
@@ -107,7 +108,10 @@ class Controller:
 
         if 'records' in config:
             from TREX_Core.utils.records import Records
-            self.records = Records(db_string=self.__config['study']['output_database'],
+            output_db_str = db_utils.make_db_str(db_utils.get_credentials(),
+                                                 config['database'],
+                                                 config['database']['output_db'])
+            self.records = Records(db_string=output_db_str,
                                    columns=config['records'])
 
         self._write_state_lock = asyncio.Lock()

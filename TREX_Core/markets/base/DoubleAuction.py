@@ -59,8 +59,11 @@ class Market(ABC):
             # settle takes 1 step after bid/ask submision
         }
 
+        self.__database_config = kwargs['database_config']
         self.__db = dict()
-        self.__db['path'] = kwargs['output_db']
+        self.__db['path'] = db_utils.make_db_str(db_utils.get_credentials(),
+                                          self.__database_config,
+                                          self.__database_config['output_db'])
         # self.__output_db = kwargs['output_db']
         self.save_transactions = True
         self.market_id = market_id
