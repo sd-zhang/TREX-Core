@@ -65,7 +65,7 @@ class Client(BaseMQTTClient):
         print('Connected participant', self.participant.market_id, self.participant.participant_id)
 
     async def on_connect_task(self):
-        await self.participant.open_profile_db()
+        await self.participant.open_db()
         self.participant.server_online = True
         await self.participant.join_market()
 

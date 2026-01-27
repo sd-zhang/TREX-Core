@@ -133,9 +133,14 @@ class Participant(ABC):
         )
         if 'records' in kwargs:
             from TREX_Core.utils.records import Records
+
             self.records = Records(db_string=self.__output_db_path,
                                    columns=kwargs['records'],
                                    context=records_ctx)
+
+        if 'action_replay' in kwargs:
+            records_db = ''
+            pass
         # print(trader_type, storage_params,  self.__profile_params)
 
         # if 'market_ns' in kwargs:
@@ -151,21 +156,15 @@ class Participant(ABC):
     #     '''
     #     await self.__client.disconnect()
 
-    async def open_db(self, db_path):
+    async def open_db(self):
         """Opens connection to the database where load and generation profiles are stored.
         Also stores references to the database object and the table object
 
         Args:
             db_path ([type]): [description]
         """
-        self.__profile['db_path'] = db_path
-        self.__profile['db'] = databases.Database(db_path)
-        profile_name = self.__profile_params['synthetic_profile'] if 'synthetic_profile' in self.__profile_params \
-            else self.participant_id
-        self.__profile['name'] = profile_name
-        self.__profile['db_table'] = db_utils.get_table(db_path, profile_name)
-        if 'db_table' in self.__profile or self.__profile['db_table'] is not None:
-            await self.__profile['db'].connect()
+        await self.open_profile_db(self.__profile['db_path'])
+
 
     async def __get_profile_stats(self):
         """reads and returns pre-calculated profile statistics for calculating Z scores, if available.
@@ -179,8 +178,15 @@ class Participant(ABC):
             return dict(row)
         return None
 
-    async def open_profile_db(self):
-        await self.open_db(self.__profile['db_path'])
+    async def open_profile_db(self, db_path):
+        self.__profile['db_path'] = db_path
+        self.__profile['db'] = databases.Database(db_path)
+        profile_name = self.__profile_params['synthetic_profile'] if 'synthetic_profile' in self.__profile_params \
+            else self.participant_id
+        self.__profile['name'] = profile_name
+        self.__profile['db_table'] = db_utils.get_table(db_path, profile_name)
+        if 'db_table' in self.__profile or self.__profile['db_table'] is not None:
+            await self.__profile['db'].connect()
         # await self.get_profile_stats(self.__profile['db_path'])
 
     # @tenacity.retry(wait=tenacity.wait_fixed(3))
