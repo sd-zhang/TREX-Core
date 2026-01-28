@@ -108,18 +108,18 @@ class Participant(ABC):
         trader_type = trader_params.pop('type', None)
         # if trader_type == 'remote_agent':
         #     trader_fns['emit'] = self.__client.emit
-        if 'actions' in trader_params and'action_replay' in trader_params['actions']:
+        if 'actions' in trader_params and'replay' in trader_params['actions']:
             # "actions": {
             #     "replay": {
-            #         "records": "citylearn_stevenweibull_test2",
+            #         "study": "citylearn_stevenweibull_test2",
             #         "market": "training",
             #         "episode": 42
             #     },
-            replay_params = trader_params['actions']['replay']
-            db_path = f'{replay_params['records']}/{replay_params['episode']}_{replay_params['market']}_records'
+            self.action_replay = trader_params['actions']['replay']
+            # print(hasattr(self, 'action_replay'))
+            # replay_params = trader_params['actions']['replay']
+            # db_path = f'{replay_params['records']}/{replay_params['episode']}_{replay_params['market']}_records'
 
-
-            pass
 
         try:
             Trader = importlib.import_module('traders.' + trader_type).Trader
@@ -178,10 +178,13 @@ class Participant(ABC):
             db_path ([type]): [description]
         """
         credentials = db_utils.get_credentials()
-        db_str = db_utils.make_db_str(credentials, self.__database_config, self.__database_config['profiles_db'])
+        profile_db_str = db_utils.make_db_str(credentials, self.__database_config, self.__database_config['profiles_db'])
+        await self.open_profile_db(profile_db_str)
 
-        await self.open_profile_db(db_str)
-
+        if hasattr(self, 'action_replay'):
+            records_table = f'{self.action_replay['episode']}_{self.action_replay['market']}_records'
+            records_db_str = db_utils.make_db_str(credentials, self.__database_config, self.action_replay['study'])
+            await self.open_action_replay_db(records_db_str, records_table)
 
     # async def __get_profile_stats(self):
     #     """reads and returns pre-calculated profile statistics for calculating Z scores, if available.
@@ -207,10 +210,10 @@ class Participant(ABC):
         # await self.get_profile_stats(self.__profile['db_path'])
 
     async def open_action_replay_db(self, db_path, table_name):
-        self.__action_replay['db'] = databases.Database(db_path)
-        self.__action_replay['db_table'] = db_utils.get_table(db_path, table_name)
-        if 'db_table' in self.__action_replay or self.__action_replay['db_table'] is not None:
-            await self.__action_replay['db'].connect()
+        self.action_replay['db'] = databases.Database(db_path)
+        self.action_replay['db_table'] = db_utils.get_table(db_path, table_name)
+        if 'db_table' in self.action_replay or self.action_replay['db_table'] is not None:
+            await self.action_replay['db'].connect()
 
     # @tenacity.retry(wait=tenacity.wait_fixed(3))
     async def join_market(self):
@@ -469,6 +472,10 @@ class Participant(ABC):
         # controller should perform those actions accordingly, but will have the option not to
         self.__next_actions = await self.trader.step()
 
+        if hasattr(self, 'action_replay'):
+            self.__next_actions = await self.__read_actions(self.__timing['current_round'])
+            # print(replay)
+
         # next_actions = await self.trader.act()
         await self.__take_actions(self.__next_actions)
         # await self.trader.learn()
@@ -544,6 +551,26 @@ class Participant(ABC):
         return utils.process_profile(row=row,
                                      gen_scale=self.__profile_params['generation_scale'],
                                      load_scale=self.__profile_params['load_scale'])
+
+    # @alru_cache
+    async def __read_actions(self, time_interval):
+        """Fetches energy profile for one timestamp from database
+
+        Args:
+            time_interval ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        db = self.action_replay['db']
+        table = self.action_replay['db_table']
+        # query = table.select().where(table.c.tstamp == time_interval[1])
+        query = table.select().where(
+            (table.c.time == time_interval[1]) &
+            (table.c.participant_id == self.participant_id))
+        # Direct fetch without transaction
+        row = await db.fetch_one(query)
+        return row['next_actions']
 
     # def __process_profile(self, row):
     #     """Processes raw readings fetches from database into generation and consumption in integer Wh.

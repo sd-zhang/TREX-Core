@@ -253,12 +253,8 @@ class Runner:
 
         default_participant_configs = config['participants'].pop('_default', {})
 
-
-
         for participant in config['participants']:
             config['participants'][participant] = default_participant_configs | config['participants'][participant]
-
-
 
         learning_participants = [participant for participant in config['participants'] if
                                  'learning' in config['participants'][participant]['trader'] and
@@ -279,7 +275,8 @@ class Runner:
                     'learning': False,
                     'type': 'baseline_agent'
                 })
-
+                if 'actions' in config['participants'][participant]['trader']:
+                    config['participants'][participant]['trader']['actions'].pop('replay', None)
             for server in policy_servers:
                 config.pop(server, None)
 
@@ -304,12 +301,6 @@ class Runner:
             for participant in config['participants']:
                 trader = config['participants'][participant]['trader']
                 trader['learning'] = False
-                # TODO: this is where we add black magic for action replay
-                if 'actions' in trader and 'action_replay' in trader['actions']:
-                    replay_params = trader['actions']['replay']
-                    db_path = f'{replay_params['records']}/{replay_params['episode']}_{replay_params['market']}_records'
-
-
 
         start_datetime = config['study']['start_datetime']
         timezone = config['study']['timezone']
