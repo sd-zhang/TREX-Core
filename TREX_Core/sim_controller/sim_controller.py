@@ -523,7 +523,7 @@ class Controller:
 
                 message = {
                     # 'output_path': self.status['output_path'],
-                    'db_path': self.__config['study']['output_database'],
+                    # 'db_path': self.__config['study']['output_database'],
                     'episode': self.__episode - 1,
                     'market_id': self.__config['market']['id']
                 }

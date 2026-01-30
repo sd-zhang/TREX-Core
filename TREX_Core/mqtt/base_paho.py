@@ -37,7 +37,7 @@ class BaseMQTTClient(ABC):
         )
 
         # Queue name kept identical to your prior code
-        self.msg_queue: "queue.Queue[Dict[str, Any]]" = queue.Queue(2048)
+        self.msg_queue: "queue.Queue[Dict[str, Any]]" = queue.Queue()
 
         self.client.on_connect    = self.on_connect
         self.client.on_disconnect = self.on_disconnect
