@@ -1,0 +1,29 @@
+[project]
+name = "trex-core"
+version = "5.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "asyncpg",
+    "async-lru",
+    "commentjson",
+    "cuid2",
+    "databases",
+    "databases[postgresql]",
+    "gmqtt",
+    "packaging",
+    "psycopg[binary]",
+    "python-dateutil",
+    "pytz",
+    "python-rapidjson",
+    "sqlalchemy",
+    "sqlalchemy-utils",
+    "typing-extensions",
+    "websockets",
+    "uvloop",
+    "numpy",
+    "orjson",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

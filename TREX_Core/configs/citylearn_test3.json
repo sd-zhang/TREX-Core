@@ -1,0 +1,117 @@
+{
+  "version": "5.2.0",
+  "study": {
+    "name": "citylearn_test3", // the simulation name defines the database name as well as local storage paths.
+    "description": "",  // (optional) a description the simulation
+    "start_datetime": "2016-08-01 04:0:0", // defines when a simulation starts
+    "timezone": "America/Vancouver",
+    "days": 300, // defines how many days the simulation runs
+    "episodes": 300
+  },
+//  "records": [
+//          "metadata",
+//          "meter",
+//          "next_observations",
+//          "next_actions",
+//          "remaining_energy",
+//          "state_of_charge"
+//  ],
+
+  // training defines special parameters for certain generations.
+  // currently used for some experimental agents to "warm up" at the beginning
+  // parameters for the socketio server
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "connector": "postgresql+psycopg",
+    "profiles_db": "citylearn_2022"
+  },
+  "server": {
+    "host": "localhost",
+    "port": 1883
+  },
+  "market": {
+    "id": "",
+    "type": "MicroTE4",
+    "use_native_pro_rata_kernel": false,
+    "batch_settlement_delivery": true,
+    "close_steps": 2,
+    "grid": {
+      "price": 0.069,
+      "fee_ratio": 1.1
+    }
+  },
+
+  "participants": { // each participant must be defined in the following format
+    "_default": {
+      // I'd recommend keeping the name the same as the name of the synthetic profile
+      "type": "Residential",
+      "trader": {
+        "type": "basic_trader",
+        "actions": {
+          "ask_price": 0.069,
+          "bid_price": 0.1449
+        },
+        "learning": true,
+        "reward_function": "net_profit"
+      },
+      "load": {
+        "scale": 1
+      },
+      // do not change, the load will stay fixed at scale 1
+      "generation": {
+        "scale": 1
+      }
+      // do not change, the generation will stay fixed at scale 1
+//      "storage": {
+//        // (optional) Defines the storage system to be attached to a participant
+//        "type": "Bess",
+//        // storage type, must exist in devices
+//        "capacity": 6400,
+//        // Usable capacity defined in Wh
+//        "power": 5000,
+//        // constant charge/discharge rate defined in W
+//        "efficiency": 0.95,
+//        // one way efficiency. round-trip efficiency is efficiency^2
+//        "monthly_sdr": 0.05
+//        // monthly self-discharge rate as a fraction of usable capacity
+//      }
+    },
+    "Building_1": {
+      //"trader": { "use_synthetic_profile": "Building_1"}
+    },
+    "Building_2": {},
+    "Building_3": {},
+    "Building_4": {},
+    "Building_5": {},
+    "Building_6": {},
+    "Building_7": {},
+    "Building_8": {},
+    "Building_9": {},
+    "Building_10": {},
+    "Building_11": {},
+    "Building_12": {},
+    "Building_13": {},
+    "Building_14": {},
+    "Building_15": {},
+    "Building_16": {},
+    "Building_17": {},
+    "Building_21": {"trader": { "use_synthetic_profile": "Building_1"}},
+    "Building_22": {"trader": { "use_synthetic_profile": "Building_2"}},
+    "Building_23": {"trader": { "use_synthetic_profile": "Building_3"}},
+    "Building_24": {"trader": { "use_synthetic_profile": "Building_4"}},
+    "Building_25": {"trader": { "use_synthetic_profile": "Building_5"}},
+    "Building_26": {"trader": { "use_synthetic_profile": "Building_6"}},
+    "Building_27": {"trader": { "use_synthetic_profile": "Building_7"}},
+    "Building_28": {"trader": { "use_synthetic_profile": "Building_8"}},
+    "Building_29": {"trader": { "use_synthetic_profile": "Building_9"}},
+    "Building_30": {"trader": { "use_synthetic_profile": "Building_10"}},
+    "Building_31": {"trader": { "use_synthetic_profile": "Building_11"}},
+    "Building_32": {"trader": { "use_synthetic_profile": "Building_12"}},
+    "Building_33": {"trader": { "use_synthetic_profile": "Building_13"}},
+    "Building_34": {"trader": { "use_synthetic_profile": "Building_14"}},
+    "Building_35": {"trader": { "use_synthetic_profile": "Building_15"}},
+    "Building_36": {"trader": { "use_synthetic_profile": "Building_16"}},
+    "Building_37": {"trader": { "use_synthetic_profile": "Building_17"}}
+  }
+}
